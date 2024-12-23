@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = 'us-east-1'        
         ECR_REPOSITORY = 'dev/assingement' 
         IMAGE_TAG = "$version2"    
-        AWS_ACCOUNT_ID = '314146334258' // Replace with your AWS account ID
+        AWS_ACCOUNT_ID = '314146334258' 
         DOCKER_IMAGE = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
     }
 
