@@ -14,7 +14,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git 'https://github.com/Shekharbabun/Question5.git'
+                     sh git clone https://github.com/Shekharbabun/Question5.git
                 }
             }
         }
