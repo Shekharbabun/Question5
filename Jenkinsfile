@@ -4,9 +4,10 @@ pipeline {
     environment {
         AWS_REGION = 'us-east-1'        
         ECR_REPOSITORY = 'dev/assingement' 
-        IMAGE_TAG = "$version2"    
+        IMAGE_TAG = "$(BUILD_NUMBER)"    
         AWS_ACCOUNT_ID = '314146334258' 
         DOCKER_IMAGE = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
+        DEPLOY_HOST = 'user@docker-server'
     }
 
     stages {
@@ -17,13 +18,14 @@ pipeline {
         }
 
         stage('Build Stage') {
-            steps {  
+           steps {
+            echo "Building the docker image"
                 sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
 
         stage('Push to ECR') {
-            steps {          
+            step {          
                     sh """
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
                     """
@@ -35,19 +37,19 @@ pipeline {
             steps {
                     sh """
                         ssh -o StrictHostKeyChecking=no user@docker-server << 'EOF'
-                            docker pull ${DOCKER_IMAGE}
+                            docker pull ${DOCKER_IMAGE} || exit 1
                             docker stop my_container || true
                             docker rm my_container || true
-                            docker run -d --name my_container ${DOCKER_IMAGE}
+                            docker run -d --name my_container ${DOCKER_IMAGE} || exit 1
                         EOF
                     """
+               }
             }
         }
     }
 
     post {
         always {
-            // Clean up actions, for example, removing temporary Docker images
             cleanWs()
         }
         success {
